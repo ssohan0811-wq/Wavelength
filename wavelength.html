@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wavelength — find friends by music taste</title>
+<meta name="description" content="Wavelength matches you with people by the artists, genres and interests you share.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --paper:#F6F6F2; --white:#FFFFFF; --ink:#111216; --soft:#5A5D68; --rule:#D9D9D2;
+  --blue:#1F2FD6; --blue-deep:#1522A8; --pink:#FF8FBF; --pink-soft:#FFE1EE; --lime:#D7F25C;
+  --display:"Anton","Impact","Arial Narrow Bold",sans-serif;
+  --body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+.shell{max-width:1180px;margin:0 auto;padding-inline:max(20px,env(safe-area-inset-left,0px))}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+h1,h2,h3{margin:0;font-weight:400}
+.display{font-family:var(--display);text-transform:uppercase;letter-spacing:.005em;line-height:.92}
+
+/* nav */
+nav{background:var(--blue);color:var(--paper)}
+nav .shell{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
+.logo{font-family:var(--display);font-size:26px;text-transform:lowercase;letter-spacing:.01em;text-decoration:none;display:flex;align-items:center;gap:10px}
+.logo svg{width:30px;height:18px}
+nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0;font-weight:500}
+nav ul a{text-decoration:none;opacity:.85}
+nav ul a:hover{opacity:1;text-decoration:underline;text-underline-offset:4px}
+.cta{display:inline-block;background:var(--paper);color:var(--ink);text-decoration:none;font-weight:700;padding:10px 16px;border-radius:2px;border:0;cursor:pointer}
+.cta:hover{background:var(--pink)}
+@media (max-width:720px){nav ul{display:none}}
+
+/* hero */
+.hero{background:var(--blue);color:var(--paper);position:relative;overflow:hidden}
+.hero .shell{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:48px;padding-block:56px 72px;align-items:center}
+@media (max-width:900px){.hero .shell{grid-template-columns:minmax(0,1fr);padding-block:40px 56px}}
+.hero h1{font-size:clamp(40px,10.5vw,128px);overflow-wrap:anywhere}
+.hero h1 em{font-style:normal;color:var(--pink)}
+.hero p{font-size:19px;max-width:44ch;margin:22px 0 30px;opacity:.92}
+.hero .actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.link-arrow{color:var(--paper);font-weight:600;text-underline-offset:5px}
+.ticket{background:var(--paper);color:var(--ink);border-radius:4px;transform:rotate(2.2deg);box-shadow:10px 10px 0 var(--blue-deep);position:relative;max-width:420px;justify-self:center;width:100%}
+.ticket::before,.ticket::after{content:"";position:absolute;top:118px;width:22px;height:22px;border-radius:50%;background:var(--blue)}
+.ticket::before{left:-11px}.ticket::after{right:-11px}
+.ticket-top{padding:22px 24px 18px;border-bottom:2px dashed var(--rule);display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.ticket-top .big{font-family:var(--display);font-size:76px;line-height:.8;color:var(--blue)}
+.ticket-top .big small{font-size:28px}
+.ticket-body{padding:18px 24px 22px;display:flex;flex-direction:column;gap:12px}
+.ticket-body .who{font-weight:700;font-size:20px}
+.sticker{position:absolute;top:-18px;right:-4px;background:var(--lime);color:var(--ink);font-family:var(--display);font-size:18px;padding:8px 12px;transform:rotate(9deg);border-radius:2px}
+
+/* marquee */
+.marquee{background:var(--ink);color:var(--paper);overflow:hidden;white-space:nowrap;border-block:1px solid var(--ink)}
+.marquee .track{display:inline-flex;gap:36px;padding:14px 0;font-family:var(--display);font-size:24px;text-transform:uppercase;letter-spacing:.02em}
+.marquee .track span{display:inline-flex;align-items:center;gap:36px}
+.marquee .track span::after{content:"";width:10px;height:10px;background:var(--pink);border-radius:50%}
+@media (prefers-reduced-motion:no-preference){.marquee .track{animation:slide 42s linear infinite}@keyframes slide{to{transform:translateX(-50%)}}}
+
+/* sections */
+section.band{padding-block:88px}
+.section-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:end;margin-bottom:44px}
+@media (max-width:800px){.section-head{grid-template-columns:minmax(0,1fr)}}
+.section-head h2{font-size:clamp(44px,6vw,76px)}
+.section-head p{margin:0;color:var(--soft);font-size:18px;max-width:46ch}
+
+/* tracklist (how it works) */
+.tracklist{border-top:2px solid var(--ink)}
+.track-row{display:grid;grid-template-columns:110px minmax(0,1fr) minmax(0,1.3fr) 80px;gap:24px;padding:26px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+.track-row .side{font-family:var(--mono);font-size:13px;color:var(--blue);font-weight:600}
+.track-row h3{font-family:var(--display);font-size:34px;text-transform:uppercase;line-height:1}
+.track-row p{margin:0;color:var(--soft)}
+.track-row .len{font-family:var(--mono);font-size:13px;color:var(--soft);text-align:right}
+@media (max-width:760px){.track-row{grid-template-columns:minmax(0,1fr);gap:8px}.track-row .len{text-align:left}}
+
+/* app */
+#app{background:var(--white);border-block:2px solid var(--ink)}
+.app-grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:40px;align-items:start}
+@media (max-width:900px){.app-grid{grid-template-columns:minmax(0,1fr)}}
+.me{border:2px solid var(--ink);padding:22px;display:flex;flex-direction:column;gap:18px;background:var(--paper);min-width:0}
+@media (min-width:901px){.me{position:sticky;top:20px}}
+.me h3{font-family:var(--display);font-size:32px;text-transform:uppercase;line-height:1}
+.me .lede{margin:0;color:var(--soft);font-size:14.5px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label,.field .lab{font-weight:700;font-size:14px}
+.field .hint{font-size:12.5px;color:var(--soft)}
+.input,textarea.input{width:100%;border:1.5px solid var(--ink);background:var(--white);border-radius:2px;padding:10px 12px}
+textarea.input{resize:vertical;min-height:70px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;padding:4px 10px;border:1.5px solid var(--ink);border-radius:999px;background:transparent;line-height:1.4}
+.chip.hit{background:var(--pink);border-color:var(--pink);font-weight:700}
+.chip.pick{cursor:pointer}
+.chip.pick:hover{background:var(--pink-soft)}
+.chip.pick[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tagbox{display:flex;flex-wrap:wrap;gap:6px;border:1.5px solid var(--ink);background:var(--white);border-radius:2px;padding:7px}
+.tagbox input{border:0;outline:0;background:transparent;flex:1;min-width:130px;padding:3px 4px}
+.tag{display:inline-flex;align-items:center;background:var(--blue);color:var(--paper);border-radius:999px;padding:2px 4px 2px 11px;font-size:13.5px;font-weight:600}
+.tag button{border:0;background:transparent;color:inherit;cursor:pointer;font-size:16px;line-height:1;padding:0 7px}
+.btn{border:2px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:700;padding:11px 18px;border-radius:2px;cursor:pointer}
+.btn:hover{background:var(--blue);border-color:var(--blue)}
+.btn.line{background:transparent;color:var(--ink)}
+.btn.line:hover{background:var(--pink-soft)}
+.btn.small{padding:5px 10px;font-size:13px;border-width:1.5px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.me-summary{display:flex;flex-direction:column;gap:14px}
+.me-name{display:flex;gap:14px;align-items:center}
+.initials{width:52px;height:52px;border-radius:50%;background:var(--blue);color:var(--paper);display:grid;place-items:center;font-family:var(--display);font-size:22px;flex:none}
+.me-name strong{display:block;font-size:20px}
+.me-name span{color:var(--soft);font-size:14px}
+.kv{display:flex;flex-direction:column;gap:6px}
+
+.feed-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:16px;margin-bottom:18px}
+.feed-head h3{font-family:var(--display);font-size:40px;text-transform:uppercase;line-height:1}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filters .input{width:auto;min-width:0;padding:8px 10px}
+#q{width:220px;max-width:100%}
+.check{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--soft)}
+.feed{display:flex;flex-direction:column}
+.match{display:grid;grid-template-columns:120px minmax(0,1fr);gap:24px;padding:26px 0;border-top:1.5px solid var(--ink)}
+.match:last-child{border-bottom:1.5px solid var(--ink)}
+@media (max-width:560px){.match{grid-template-columns:minmax(0,1fr);gap:14px}}
+.pct{display:flex;flex-direction:column;gap:6px}
+.pct .n{font-family:var(--display);font-size:64px;line-height:.85;color:var(--blue);font-variant-numeric:tabular-nums}
+.pct .n sup{font-size:24px;vertical-align:top;margin-left:2px}
+.pct .tier{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.m-body{display:flex;flex-direction:column;gap:12px;min-width:0}
+.m-top{display:flex;gap:12px;flex-wrap:wrap;align-items:baseline}
+.m-top h4{margin:0;font-size:22px;font-weight:700}
+.m-top .where{color:var(--soft);font-size:14px}
+.demo{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;border:1px dashed var(--soft);color:var(--soft);padding:1px 6px;border-radius:2px}
+.m-bio{margin:0;max-width:62ch}
+.meters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:560px}
+@media (max-width:620px){.meters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.meter .k{display:flex;justify-content:space-between;font-size:12px;color:var(--soft);font-variant-numeric:tabular-nums}
+.meter .bar{display:flex;gap:2px;margin-top:4px}
+.meter .bar i{flex:1;height:10px;background:var(--rule)}
+.meter .bar i.on{background:var(--blue)}
+.opener{background:var(--pink-soft);padding:10px 14px;font-size:14.5px;border-radius:2px}
+.opener b{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:2px}
+.reach{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
+.reach code{font-family:var(--mono);font-size:13px;background:var(--paper);border:1px solid var(--rule);padding:3px 7px;user-select:all}
+.empty{padding:40px 0;border-top:1.5px solid var(--ink);color:var(--soft)}
+
+/* algorithm */
+.algo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
+@media (max-width:860px){.algo{grid-template-columns:minmax(0,1fr)}}
+.formula{background:var(--ink);color:var(--paper);padding:28px;font-family:var(--mono);font-size:14px;line-height:1.8;overflow-x:auto;border-radius:2px}
+.formula .c{color:#8A8FA3}
+.formula .h{color:var(--lime)}
+.weights{display:flex;flex-direction:column;gap:16px}
+.w-row{display:grid;grid-template-columns:110px minmax(0,1fr) 48px;gap:14px;align-items:center}
+.w-row .bar{height:18px;background:var(--rule)}
+.w-row .bar div{height:100%;background:var(--blue)}
+.w-row .v{font-family:var(--mono);font-size:14px;text-align:right}
+.algo p{color:var(--soft);margin:0 0 16px}
+
+/* footer */
+footer{background:var(--blue);color:var(--paper);padding-block:56px 40px}
+footer .big{font-size:clamp(60px,13vw,180px);line-height:.85}
+footer .bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-top:36px;padding-top:20px;border-top:1px solid rgba(246,246,242,.3);font-size:14px;opacity:.85}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:11px 18px;font-weight:600;border-radius:2px;z-index:50;box-shadow:4px 4px 0 var(--pink)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="shell">
+    <a class="logo" href="#top" aria-label="Wavelength home">
+      <svg viewBox="0 0 30 18" aria-hidden="true"><path d="M1 9c3-8 6-8 7 0s4 8 7 0 4-8 7 0 4 8 7 0" fill="none" stroke="#FF8FBF" stroke-width="2.4" stroke-linecap="round"/></svg>
+      wavelength
+    </a>
+    <ul>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#app">Matches</a></li>
+      <li><a href="#score">The score</a></li>
+    </ul>
+    <a class="cta" href="#app" data-start>Make your profile</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="shell">
+    <div>
+      <span class="mono" style="opacity:.75">Friend matching for people with opinions about music</span>
+      <h1 class="display" style="margin-top:18px">Find your people by what's in your <em>headphones.</em></h1>
+      <p>Drop your top artists, the genres you live in and what you do when the music's off. Wavelength ranks everyone by overlap and hands you the first thing to say.</p>
+      <div class="actions">
+        <a class="cta" href="#app" data-start>Build my profile</a>
+        <a class="link-arrow" href="#score">How matching works</a>
+      </div>
+    </div>
+    <div class="ticket" aria-label="Example match">
+      <span class="sticker">Beta</span>
+      <div class="ticket-top">
+        <div><span class="mono" style="color:var(--soft)">Match · Admit one</span><div class="who" style="font-weight:700;font-size:22px;margin-top:6px">You + Maya</div></div>
+        <div class="big">87<small>%</small></div>
+      </div>
+      <div class="ticket-body">
+        <span class="mono" style="color:var(--soft)">Shared rotation</span>
+        <div class="chips"><span class="chip hit">Frank Ocean</span><span class="chip hit">SZA</span><span class="chip hit">Kendrick Lamar</span><span class="chip">Daniel Caesar</span></div>
+        <div class="chips"><span class="chip hit">R&amp;B</span><span class="chip hit">Concerts</span><span class="chip">Photography</span></div>
+        <div class="opener"><b>Opener</b>You both have Frank Ocean and SZA in your top artists. Ask which one they'd see live first.</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true"><div class="track" id="marquee"></div></div>
+
+<section class="band" id="how">
+  <div class="shell">
+    <div class="section-head">
+      <h2 class="display">Three tracks.<br>That's the whole album.</h2>
+      <p>No swiping, no follower counts. You tell it what you listen to and what you're into, and it does the comparing.</p>
+    </div>
+    <div class="tracklist">
+      <div class="track-row"><span class="side">A1</span><h3>Set your rotation</h3><p>Add up to ten artists you actually have on repeat, then tap the genres and interests that fit.</p><span class="len">0:45</span></div>
+      <div class="track-row"><span class="side">A2</span><h3>See who lines up</h3><p>Everyone gets a compatibility score, split into artists, genres, interests and what you're both looking for.</p><span class="len">0:10</span></div>
+      <div class="track-row"><span class="side">B1</span><h3>Say something specific</h3><p>Each match comes with an opener built from what you share, plus their handle so you can reach out.</p><span class="len">2:30</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="app">
+  <div class="shell">
+    <div class="app-grid">
+      <aside class="me" id="me" aria-label="Your profile"></aside>
+      <div>
+        <div class="feed-head">
+          <div><span class="mono" id="feedLabel" style="color:var(--soft)">Ranked by compatibility</span><h3>Your matches</h3></div>
+          <div class="filters">
+            <input class="input" id="q" type="search" placeholder="Search artist, genre, city" aria-label="Search matches">
+            <select class="input" id="lf" aria-label="Looking for"></select>
+            <label class="check"><input type="checkbox" id="demoToggle" checked> Demo profiles</label>
+          </div>
+        </div>
+        <div class="feed" id="feed"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="score">
+  <div class="shell">
+    <div class="section-head">
+      <h2 class="display">How the<br>score works</h2>
+      <p>Four comparisons, weighted by how much they predict a friendship that sticks. Artists count most because they're the most specific.</p>
+    </div>
+    <div class="algo">
+      <div>
+        <p>Each category is compared with cosine similarity on sets, so someone who lists three artists isn't punished next to someone who lists ten. The weighted total is passed through a gentle curve so partial overlap still reads as a real signal.</p>
+        <div class="weights" id="weights"></div>
+      </div>
+      <pre class="formula"><span class="c">// for each category k</span>
+sim(k) = |A ∩ B| / √(|A| · |B|)
+
+<span class="c">// weighted blend</span>
+raw = <span class="h">0.40</span>·artists + <span class="h">0.25</span>·genres
+    + <span class="h">0.25</span>·interests + <span class="h">0.10</span>·goals
+
+<span class="c">// curve to a 0–100 score</span>
+score = 100 · (1 − (1 − raw)<sup>2.2</sup>)</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="shell">
+    <div class="display big">Same<br>frequency.</div>
+    <div class="bottom">
+      <span>Wavelength · built by Sohan</span>
+      <span>Profiles are stored in your browser in this version.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const GENRES=["Hip-hop","R&B","Pop","Indie","Alt","Rock","EDM","House","Techno","K-pop","Afrobeats","Latin","Reggaeton","Jazz","Soul","Country","Metal","Punk","Lo-fi","Classical","Bollywood","Drill","Phonk","Shoegaze","Folk"];
+const INTERESTS=["Gaming","Gym","Basketball","Soccer","Coding","Anime","Film","Photography","Fashion","Cooking","Hiking","Skating","Reading","Art","Startups","Travel","Concerts","DJing","Producing","Thrifting","Coffee","Chess"];
+const LOOKING=["Concert buddies","Gym partner","Study / build buddies","Jam sessions","Just chatting"];
+const WEIGHTS={artists:.40,genres:.25,interests:.25,lookingFor:.10};
+const WEIGHT_LABELS={artists:"Artists",genres:"Genres",interests:"Interests",lookingFor:"Goals"};
+
+// Demo community (fictional people) so the feed has something to rank.
+const DEMO=[
+ {id:"d1",name:"Maya",city:"Fairfax, VA",bio:"CS sophomore, always has one earbud in. Looking for people to hit shows in DC with.",artists:["SZA","Frank Ocean","Daniel Caesar","Brent Faiyaz","Kendrick Lamar"],genres:["R&B","Hip-hop","Soul"],interests:["Concerts","Coding","Coffee","Photography"],lookingFor:["Concert buddies","Study / build buddies"],contact:"@maya.listens"},
+ {id:"d2",name:"Dev",city:"Arlington, VA",bio:"Lifting at 6am, making beats at midnight.",artists:["Travis Scott","Metro Boomin","Playboi Carti","Kanye West","Drake"],genres:["Hip-hop","Phonk","Drill"],interests:["Gym","Producing","Basketball","Gaming"],lookingFor:["Gym partner","Jam sessions"],contact:"dev.wav (discord)"},
+ {id:"d3",name:"Lena",city:"Richmond, VA",bio:"Shoegaze apologist. Will lend you a record and forget to ask for it back.",artists:["Mitski","Phoebe Bridgers","Slowdive","Beach House","Clairo"],genres:["Indie","Shoegaze","Alt","Folk"],interests:["Thrifting","Film","Reading","Art"],lookingFor:["Concert buddies","Just chatting"],contact:"@lena.on.vinyl"},
+ {id:"d4",name:"Jae",city:"Centreville, VA",bio:"K-pop dance covers on weekends, Valorant on weeknights.",artists:["NewJeans","Stray Kids","BTS","SZA","The Weeknd"],genres:["K-pop","Pop","R&B"],interests:["Gaming","Anime","Fashion","Concerts"],lookingFor:["Concert buddies","Just chatting"],contact:"jae.k (discord)"},
+ {id:"d5",name:"Tomás",city:"Washington, DC",bio:"House music, Sunday league soccer and a new startup idea every week.",artists:["Fred again..","Bad Bunny","Kaytranada","Daft Punk","Rauw Alejandro"],genres:["House","Latin","Reggaeton","EDM"],interests:["Soccer","Startups","DJing","Travel"],lookingFor:["Study / build buddies","Jam sessions"],contact:"@tomas.bpm"},
+ {id:"d6",name:"Priya",city:"Herndon, VA",bio:"Shipping side projects and a playlist for every mood.",artists:["Frank Ocean","Tame Impala","The Weeknd","Arijit Singh","Kendrick Lamar"],genres:["R&B","Alt","Bollywood","Hip-hop"],interests:["Coding","Startups","Cooking","Hiking"],lookingFor:["Study / build buddies","Just chatting"],contact:"@priya.builds"},
+ {id:"d7",name:"Marcus",city:"Manassas, VA",bio:"Hoops, jazz, and the best smash burgers in NoVA (self-reported).",artists:["Kendrick Lamar","Robert Glasper","Anderson .Paak","J. Cole","Thundercat"],genres:["Jazz","Hip-hop","Soul"],interests:["Basketball","Cooking","Gym","Film"],lookingFor:["Gym partner","Just chatting"],contact:"@marcus.keys"},
+ {id:"d8",name:"Rin",city:"Fairfax, VA",bio:"Lo-fi while I study, metal while I skate.",artists:["Nujabes","Deftones","Bring Me The Horizon","Joji","Tame Impala"],genres:["Lo-fi","Metal","Alt"],interests:["Skating","Anime","Gaming","Art"],lookingFor:["Study / build buddies","Jam sessions"],contact:"rin_sk8 (discord)"},
+ {id:"d9",name:"Ayo",city:"Silver Spring, MD",bio:"Afrobeats evangelist. Chess at the coffee shop on Sundays.",artists:["Burna Boy","Wizkid","Tems","Rema","Drake"],genres:["Afrobeats","R&B","Hip-hop"],interests:["Chess","Coffee","Soccer","Fashion"],lookingFor:["Concert buddies","Just chatting"],contact:"@ayo.afro"},
+ {id:"d10",name:"Hannah",city:"Leesburg, VA",bio:"Country on road trips, Taylor in the gym, no shame about either.",artists:["Taylor Swift","Zach Bryan","Morgan Wallen","Noah Kahan","Olivia Rodrigo"],genres:["Country","Pop","Folk"],interests:["Hiking","Travel","Gym","Coffee"],lookingFor:["Gym partner","Concert buddies"],contact:"@hannah.roadtrips"},
+];
+const SAMPLE_ME={name:"Sample listener",city:"",bio:"",artists:["Frank Ocean","Kendrick Lamar","SZA","Travis Scott"],genres:["Hip-hop","R&B"],interests:["Coding","Gym","Concerts"],lookingFor:["Concert buddies","Study / build buddies"],contact:""};
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm=s=>String(s).trim().toLowerCase().replace(/\s+/g," ");
+const STORE="wavelength.profile";
+const load=()=>{try{return JSON.parse(localStorage.getItem(STORE)||"null")}catch{return null}};
+const save=v=>{try{v?localStorage.setItem(STORE,JSON.stringify(v)):localStorage.removeItem(STORE)}catch{}};
+
+const state={me:load(),editing:false,draft:null,showDemo:true};
+
+/* ---------- matching ---------- */
+function overlap(a=[],b=[]){
+  const B=new Map(b.map(x=>[norm(x),x])),A=new Set(a.map(norm)),shared=[];
+  for(const k of A) if(B.has(k)) shared.push(B.get(k));
+  return {s:(A.size&&B.size)?shared.length/Math.sqrt(A.size*B.size):0,shared};
+}
+function compare(me,them){
+  const parts={};let raw=0;
+  for(const k in WEIGHTS){parts[k]=overlap(me[k],them[k]);raw+=WEIGHTS[k]*parts[k].s}
+  return {score:Math.round(100*(1-Math.pow(1-raw,2.2))),parts};
+}
+const tier=s=>s>=80?"Same frequency":s>=60?"Strong signal":s>=40?"Good overlap":s>=20?"Some overlap":"New territory";
+function opener(m){
+  const a=m.parts.artists.shared,g=m.parts.genres.shared,i=m.parts.interests.shared;
+  if(a.length>=2) return `You both have ${a[0]} and ${a[1]} in your top artists. Ask which one they'd see live first.`;
+  if(a.length) return `You both rate ${a[0]}. Ask for their favorite deep cut.`;
+  if(g.length&&i.length) return `You're both into ${g[0]} and ${i[0].toLowerCase()}. Swap a playlist and make a plan.`;
+  if(g.length) return `Shared ${g[0]} taste. Trade three songs the other hasn't heard yet.`;
+  if(i.length) return `You both like ${i[0].toLowerCase()}. Start there.`;
+  return `Almost no overlap, so they can put you on to something new. Ask what they've had on repeat.`;
+}
+
+/* ---------- profile panel ---------- */
+const chips=(arr,cls="")=>(arr||[]).map(x=>`<span class="chip ${cls}">${esc(x)}</span>`).join("");
+const initials=n=>(n||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"?";
+function renderMe(){
+  const el=$("#me");
+  if(state.editing) return renderEditor(el);
+  const me=state.me;
+  if(!me){
+    el.innerHTML=`<h3>Start with your sound</h3>
+      <p class="lede">Right now the list is ranked for a sample listener. Add your own artists and interests to see who you actually match with.</p>
+      <div class="kv"><span class="mono" style="color:var(--soft)">Sample listener</span><div class="chips">${chips(SAMPLE_ME.artists)}</div></div>
+      <button class="btn" id="edit">Build my profile</button>`;
+  } else {
+    const sec=(t,arr,empty)=>`<div class="kv"><span class="mono" style="color:var(--soft)">${t}</span><div class="chips">${chips(arr)||`<span class="lede">${empty}</span>`}</div></div>`;
+    el.innerHTML=`<div class="me-summary">
+      <div class="me-name"><div class="initials">${esc(initials(me.name))}</div><div><strong>${esc(me.name)}</strong><span>${esc(me.city||"Location not set")}</span></div></div>
+      ${me.bio?`<p class="lede" style="color:var(--ink)">${esc(me.bio)}</p>`:""}
+      ${sec("Top artists",me.artists,"None yet")}
+      ${sec("Genres",me.genres,"None yet")}
+      ${sec("Into",me.interests,"None yet")}
+      ${sec("Looking for",me.lookingFor,"Open to anything")}
+      ${me.contact?`<div class="kv"><span class="mono" style="color:var(--soft)">Handle</span><span>${esc(me.contact)}</span></div>`:""}
+      <div class="row"><button class="btn" id="edit">Edit profile</button><button class="btn line" id="reset">Reset</button></div>
+    </div>`;
+    $("#reset").onclick=()=>{state.me=null;save(null);toast("Profile cleared");render()};
+  }
+  $("#edit").onclick=startEdit;
+}
+function startEdit(){
+  state.draft=structuredClone(state.me||{name:"",city:"",bio:"",artists:[],genres:[],interests:[],lookingFor:[],contact:""});
+  state.editing=true;renderMe();
+  setTimeout(()=>$("#f-name")?.focus({preventScroll:true}),0);
+}
+function picker(field,options,sel){
+  const s=new Set((sel||[]).map(norm));
+  return `<div class="chips" data-field="${field}">${options.map(o=>`<button type="button" class="chip pick" aria-pressed="${s.has(norm(o))}" data-v="${esc(o)}">${esc(o)}</button>`).join("")}</div>`;
+}
+function renderEditor(el){
+  const d=state.draft,full=d.artists.length>=10;
+  el.innerHTML=`<h3>Your rotation</h3>
+  <form id="form" style="display:flex;flex-direction:column;gap:18px">
+    <div class="field"><label for="f-name">Name</label><input class="input" id="f-name" maxlength="40" value="${esc(d.name)}" required></div>
+    <div class="field"><label for="f-city">City or campus</label><input class="input" id="f-city" maxlength="60" value="${esc(d.city)}" placeholder="Fairfax, VA"></div>
+    <div class="field"><label for="f-bio">One line about you</label><textarea class="input" id="f-bio" maxlength="200">${esc(d.bio)}</textarea></div>
+    <div class="field"><label for="f-artist">Top artists</label>
+      <div class="tagbox" id="tags">${d.artists.map((a,i)=>`<span class="tag">${esc(a)}<button type="button" data-rm="${i}" aria-label="Remove ${esc(a)}">×</button></span>`).join("")}<input id="f-artist" list="artists" placeholder="${full?"That's ten":"Type a name, press Enter"}" ${full?"disabled":""}></div>
+      <span class="hint">Up to ten. These count the most.</span></div>
+    <div class="field"><span class="lab">Genres</span>${picker("genres",GENRES,d.genres)}</div>
+    <div class="field"><span class="lab">Interests</span>${picker("interests",INTERESTS,d.interests)}</div>
+    <div class="field"><span class="lab">Looking for</span>${picker("lookingFor",LOOKING,d.lookingFor)}</div>
+    <div class="field"><label for="f-contact">Handle</label><input class="input" id="f-contact" maxlength="60" value="${esc(d.contact)}" placeholder="@instagram or discord name"><span class="hint">Shown to matches. Leave out phone numbers.</span></div>
+    <div class="row"><button class="btn" type="submit">Save profile</button><button class="btn line" type="button" id="cancel">Cancel</button></div>
+  </form>
+  <datalist id="artists">${[...new Set(DEMO.flatMap(p=>p.artists))].sort().map(a=>`<option value="${esc(a)}">`).join("")}</datalist>`;
+
+  const sync=()=>{d.name=$("#f-name").value;d.city=$("#f-city").value;d.bio=$("#f-bio").value;d.contact=$("#f-contact").value};
+  el.querySelectorAll("[data-field]").forEach(box=>box.addEventListener("click",e=>{
+    const b=e.target.closest(".pick");if(!b)return;
+    const arr=d[box.dataset.field],i=arr.findIndex(x=>norm(x)===norm(b.dataset.v));
+    i>=0?arr.splice(i,1):arr.push(b.dataset.v);b.setAttribute("aria-pressed",String(i<0));
+  }));
+  const addArtist=()=>{const inp=$("#f-artist");const v=inp.value.trim().replace(/,$/,"");
+    if(v&&d.artists.length<10&&!d.artists.some(x=>norm(x)===norm(v))){sync();d.artists.push(v);renderMe();$("#f-artist")?.focus()} else inp.value=""};
+  $("#f-artist").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===","){e.preventDefault();addArtist()}});
+  $("#tags").addEventListener("click",e=>{const b=e.target.closest("[data-rm]");if(!b)return;sync();d.artists.splice(+b.dataset.rm,1);renderMe()});
+  $("#cancel").onclick=()=>{state.editing=false;renderMe()};
+  $("#form").addEventListener("submit",e=>{
+    e.preventDefault();sync();
+    const pending=$("#f-artist").value.trim();
+    if(pending&&d.artists.length<10&&!d.artists.some(x=>norm(x)===norm(pending)))d.artists.push(pending);
+    state.me={name:d.name.trim()||"You",city:d.city.trim(),bio:d.bio.trim(),artists:d.artists,genres:d.genres,interests:d.interests,lookingFor:d.lookingFor,contact:d.contact.trim()};
+    save(state.me);state.editing=false;toast("Profile saved. Matches updated.");render();
+  });
+}
+
+/* ---------- feed ---------- */
+function meter(label,s){
+  const on=Math.round(s*10);
+  return `<div class="meter"><div class="k"><span>${label}</span><span>${Math.round(s*100)}%</span></div><div class="bar">${Array.from({length:10},(_,i)=>`<i class="${i<on?"on":""}"></i>`).join("")}</div></div>`;
+}
+function marked(arr,shared){const s=new Set(shared.map(norm));return (arr||[]).map(x=>`<span class="chip ${s.has(norm(x))?"hit":""}">${esc(x)}</span>`).join("")}
+function renderFeed(){
+  const me=state.me||SAMPLE_ME,q=norm($("#q").value||""),lf=$("#lf").value;
+  const pool=state.showDemo?DEMO:[];
+  const list=pool.map(p=>({p,m:compare(me,p)}))
+    .filter(({p})=>!lf||p.lookingFor.includes(lf))
+    .filter(({p})=>!q||[p.name,p.city,...p.artists,...p.genres,...p.interests].some(x=>norm(x).includes(q)))
+    .sort((a,b)=>b.m.score-a.m.score);
+  $("#feedLabel").textContent=state.me?`Ranked for ${state.me.name}`:"Ranked for a sample listener";
+  const feed=$("#feed");
+  if(!pool.length){feed.innerHTML=`<p class="empty">Demo profiles are off. Turn them back on to see how ranking works. Real profiles from other people need the hosted version with a database.</p>`;return}
+  if(!list.length){feed.innerHTML=`<p class="empty">Nobody matches that search. Try a genre or clear the filter.</p>`;return}
+  feed.innerHTML=list.map(({p,m})=>`<article class="match">
+    <div class="pct"><div class="n">${m.score}<sup>%</sup></div><span class="tier">${tier(m.score)}</span></div>
+    <div class="m-body">
+      <div class="m-top"><h4>${esc(p.name)}</h4><span class="where">${esc(p.city)}</span><span class="demo">Demo</span></div>
+      <p class="m-bio">${esc(p.bio)}</p>
+      <div class="chips">${marked(p.artists,m.parts.artists.shared)}</div>
+      <div class="chips">${marked(p.genres,m.parts.genres.shared)}${marked(p.interests,m.parts.interests.shared)}</div>
+      <div class="meters">${Object.keys(WEIGHTS).map(k=>meter(WEIGHT_LABELS[k],m.parts[k].s)).join("")}</div>
+      <div class="opener"><b>Opener</b>${esc(opener(m))}</div>
+      <div class="reach"><span style="color:var(--soft)">Reach out</span><code>${esc(p.contact)}</code><button class="btn line small" data-copy="${esc(p.contact)}">Copy</button></div>
+    </div></article>`).join("");
+}
+$("#feed").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-copy]");if(!b)return;
+  try{await navigator.clipboard.writeText(b.dataset.copy);toast("Copied")}
+  catch{const r=document.createRange();r.selectNodeContents(b.previousElementSibling);const s=getSelection();s.removeAllRanges();s.addRange(r);toast("Selected. Press Cmd+C to copy.")}
+});
+
+/* ---------- misc ---------- */
+let tt;function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+function render(){renderMe();renderFeed()}
+
+$("#lf").innerHTML=`<option value="">Looking for: anything</option>`+LOOKING.map(l=>`<option>${esc(l)}</option>`).join("");
+$("#q").addEventListener("input",renderFeed);
+$("#lf").addEventListener("change",renderFeed);
+$("#demoToggle").addEventListener("change",e=>{state.showDemo=e.target.checked;renderFeed()});
+document.querySelectorAll("[data-start]").forEach(a=>a.addEventListener("click",()=>{if(!state.me)setTimeout(startEdit,350)}));
+
+const words=["Hip-hop","Shoegaze","Afrobeats","House","R&B","K-pop","Jazz","Phonk","Indie","Country","Lo-fi","Reggaeton"];
+$("#marquee").innerHTML=[...words,...words].map(w=>`<span>${esc(w)}</span>`).join("");
+$("#weights").innerHTML=Object.entries(WEIGHTS).map(([k,v])=>`<div class="w-row"><span style="font-weight:700">${WEIGHT_LABELS[k]}</span><div class="bar"><div style="width:${v/0.4*100}%"></div></div><span class="v">${Math.round(v*100)}%</span></div>`).join("");
+
+render();
+</script>
+</body>
+</html>
